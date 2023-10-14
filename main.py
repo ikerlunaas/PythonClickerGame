@@ -1,57 +1,77 @@
-import tkinter
 import tkinter as tk
-import random
+import pickle
 
 class ClickerGame:
     def __init__(self, root):
         self.root = root
-        self.score = 0
-        self.multiplier = 1
+        self.root.title("Clicker Game")
 
-        self.score_label = tk.Label(root, text="Score: 0")
-        self.score_label.pack()
+        root.protocol("WM_DELETE_WINDOW", self.save_data)  # Save data when closing the window
 
-        self.check_console_label = tk.Label(root, text="Check the console, if there's an error or something to see.")
-        self.check_console_label.pack()
+        self.load_data()  # Load data from a file
 
-        self.click_button = tk.Button(root, text="Click Me!", command=self.click)
-        self.click_button.pack()
+        # Click button
+        self.click_button = tk.Button(root, text="Click Me", command=self.click)
+        self.click_button.pack(pady=10)
 
+        # Display click count
+        self.click_label = tk.Label(root, text=f"Clicks: {self.click_count}")
+        self.click_label.pack()
+
+        # Shop
+        self.shop_label = tk.Label(root, text="Shop:")
+        self.shop_label.pack()
+
+        # Multiplier button
+        self.multiplier_button = tk.Button(root, text=f"Buy Multiplier ({self.multiplier_cost} clicks)", command=self.buy_multiplier)
+        self.multiplier_button.pack()
+
+        # Display the number of multipliers and current multiplier
+        self.multiplier_count_label = tk.Label(root, text=f"Multipliers: {self.multiplier}")
+        self.multiplier_count_label.pack()
+
+        self.update_labels()
+
+        root.protocol("WM_DELETE_WINDOW", self.save_data)  # Save data when closing the window
 
     def click(self):
-        self.score += 1 * self.multiplier
+        self.click_count += self.multiplier
+        self.update_labels()
 
-        if self.score >= 20:
-            self.multiplier = 2
-            print(f'Current multiplier value: {self.multiplier}')
+    def buy_multiplier(self):
+        if self.click_count >= self.multiplier_cost:
+            self.multiplier += 1
+            self.click_count -= self.multiplier_cost
+            self.multiplier_cost *= 2
+            self.update_labels()
 
-        if self.score >= 40:
-            self.multiplier = 3
-            print(f'Current multiplier value: {self.multiplier}')
+    def update_labels(self):
+        self.click_label.config(text=f"Clicks: {self.click_count}")
+        self.multiplier_button.config(text=f"Buy Multiplier ({self.multiplier_cost} clicks)")
+        self.multiplier_count_label.config(text=f"Multipliers: {self.multiplier}")
 
-        if self.score >= 60:
-            self.multiplier = 5
-            print(f'Current multiplier value: {self.multiplier}')
+    def load_data(self):
+        try:
+            with open("clicker_data.pkl", "rb") as file:
+                data = pickle.load(file)
+                self.click_count = data['click_count']
+                self.multiplier = data['multiplier']
+                self.multiplier_cost = data['multiplier_cost']
+        except FileNotFoundError:
+            self.click_count = 0
+            self.multiplier = 1
+            self.multiplier_cost = 10
 
-        if self.score >= 100:
-            self.multiplier = 9
-            print(f'Current multiplier value: {self.multiplier}')
-
-        # Easter egg
-        if self.score > 1000:
-            self.multiplier = random.randrange(50, 100+1)
-            print(f'Current easteregg random multiplier value: {self.multiplier}')
-
-        self.update_score()
-
-    def update_score(self):
-        self.score_label.config(text="Score: {}".format(self.score))
-
+    def save_data(self):
+        data = {'click_count': self.click_count, 'multiplier': self.multiplier, 'multiplier_cost': self.multiplier_cost}
+        try:
+            with open("clicker_data.pkl", "wb") as file:
+                pickle.dump(data, file)
+        except Exception as e:
+            print(f"An error occurred while saving data: {str(e)}")
+        self.root.destroy()
 
 if __name__ == "__main__":
     root = tk.Tk()
-    root.title("Clicker Game")
-
-    game = ClickerGame(root)
-
+    app = ClickerGame(root)
     root.mainloop()
