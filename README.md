@@ -1,11 +1,14 @@
 # REQUERIMENTS 🔧
-· You'll need to have installed `tkinter` to run this python file.
+· You'll need to have installed `tkinter` and `picke` to run this python file.
 (and have python)
 
 # HOW TO INSTALL TKINTER 📜
 1. Open your terminal
 2. Then copy and paste `pip install tkinter`
 3. And run the code!
+
+# NOTE
+It have a saving system, so it saves a file with data on it.
 
 # HOW TO RUN ✅
 1. Go to your terminal.
